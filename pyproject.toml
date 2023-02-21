@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "support-bot"
+version = "0.1.0"
+description = ""
+authors = ["antomin <anton.mindlin@gmail.com>"]
+readme = "README.md"
+packages = [{include = "support_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiogram = "^2.25.1"
+environs = "^9.5.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
