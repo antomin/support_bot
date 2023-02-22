@@ -11,13 +11,13 @@ from loader import dp
 
 @dp.message_handler(Command('support'))
 async def ask_support(message: Message):
-    text = 'Хотите связаться с техподдержкой?\nНажмите на кнопку ниже!'
-    keyboard = await support_keyboard(messages='many')
+    text = 'Для связи с техподдержкой нажмите на кнопку ниже.'
+    keyboard = await support_keyboard()
 
     await message.answer(text=text, reply_markup=keyboard)
 
 
-@dp.callback_query_handler(support_callback.filter(messages='many', as_user='yes'))
+@dp.callback_query_handler(support_callback.filter(as_user='yes'))
 async def send_to_support_call(call: CallbackQuery, state: FSMContext, callback_data: dict):
     await call.message.edit_text('Ваше сообщение отправлено. Ждём ответа от оператора...')
 
@@ -33,7 +33,7 @@ async def send_to_support_call(call: CallbackQuery, state: FSMContext, callback_
     await state.set_state('wait_in_support')
     await state.update_data(second_id=support_id)
 
-    keyboard = await support_keyboard(messages='many', user_id=call.from_user.id)
+    keyboard = await support_keyboard(user_id=call.from_user.id)
 
     await dp.bot.send_message(
         chat_id=support_id,
@@ -42,7 +42,7 @@ async def send_to_support_call(call: CallbackQuery, state: FSMContext, callback_
     )
 
 
-@dp.callback_query_handler(support_callback.filter(messages='many', as_user='no'))
+@dp.callback_query_handler(support_callback.filter(as_user='no'))
 async def answer_support_call(call: CallbackQuery, state: FSMContext, callback_data: dict):
     second_id = int(callback_data.get('user_id'))
     user_state = dp.current_state(user=second_id, chat=second_id)

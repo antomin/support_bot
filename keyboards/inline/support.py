@@ -6,7 +6,7 @@ from aiogram.utils.callback_data import CallbackData
 from common.config import support_ids
 from loader import dp
 
-support_callback = CallbackData('ask_support', 'messages', 'user_id', 'as_user')
+support_callback = CallbackData('ask_support', 'user_id', 'as_user')
 cancel_support_callback = CallbackData('cancel_support', 'user_id')
 
 
@@ -25,7 +25,8 @@ async def get_support_manager():
             return support_id
     return
 
-async def support_keyboard(messages, user_id=None):
+
+async def support_keyboard(user_id=None):
     if user_id:
         contact_id = int(user_id)
         as_user = 'no'
@@ -33,28 +34,26 @@ async def support_keyboard(messages, user_id=None):
     else:
         contact_id = await get_support_manager()
         as_user = 'yes'
-        if messages == 'meny' and not contact_id:
+
+        if not contact_id:
             return False
-        elif messages == 'one' and not contact_id:
-            contact_id = random.choice(support_ids)
-        text = 'Написать 1 сообщение в техподдержку' if messages == 'one' else 'Написать в техподдержку'
+
+        text = 'Написать в техподдержку'
 
     keyboard = InlineKeyboardMarkup()
 
     keyboard.add(InlineKeyboardButton(
         text=text,
         callback_data=support_callback.new(
-            messages=messages,
             user_id=contact_id,
             as_user=as_user
         )
     ))
 
-    if messages == 'many':
-        keyboard.add(InlineKeyboardButton(
-            text='Завершить сеанс',
-            callback_data=cancel_support_callback.new(user_id=contact_id)
-        ))
+    keyboard.add(InlineKeyboardButton(
+        text='Завершить сеанс',
+        callback_data=cancel_support_callback.new(user_id=contact_id)
+    ))
 
     return keyboard
 
