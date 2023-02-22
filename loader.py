@@ -1,6 +1,8 @@
 from aiogram import Bot, Dispatcher
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from common.settings import TG_TOKEN
+from common.config import TG_TOKEN
 
-bot = Bot(token=TG_TOKEN)
-dp = Dispatcher(bot=bot)
+bot = Bot(token=TG_TOKEN, parse_mode='HTML')
+storage = MemoryStorage()
+dp = Dispatcher(bot=bot, storage=storage)

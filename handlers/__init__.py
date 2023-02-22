@@ -1,3 +1,3 @@
-from .main_handlers import dp
+from .support import dp
 
 __all__ = ['dp']
