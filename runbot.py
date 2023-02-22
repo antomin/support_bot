@@ -1,5 +1,6 @@
 from aiogram.utils import executor
 
+import middlewares
 from common.set_bot_commands import set_default_commands
 from handlers import dp
 
