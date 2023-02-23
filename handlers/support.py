@@ -3,9 +3,7 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import CallbackQuery, ContentTypes, Message
 
 from keyboards.inline.support import (cancel_support, cancel_support_callback,
-                                      check_support_available,
-                                      get_support_manager, support_callback,
-                                      support_keyboard)
+                                      support_callback, support_keyboard)
 from loader import dp
 
 
@@ -19,24 +17,18 @@ async def ask_support(message: Message):
 
 @dp.callback_query_handler(support_callback.filter(as_user='yes'))
 async def send_to_support_call(call: CallbackQuery, state: FSMContext, callback_data: dict):
-    await call.message.edit_text('Ваше сообщение отправлено. Ждём ответа от оператора...')
+    await call.message.edit_text(
+        text='Ваше заявка отправлена. Дождитесь ответа оператора...'
+    )
 
     user_id = int(callback_data.get('user_id'))
 
-    support_id = await get_support_manager() if not await check_support_available(user_id) else user_id
-
-    if not support_id:
-        await call.message.edit_text('К сожалению все операторы заняты. Попробуйте позже.')
-        await state.reset_state()
-        return
-
     await state.set_state('wait_in_support')
-    await state.update_data(second_id=support_id)
 
     keyboard = await support_keyboard(user_id=call.from_user.id)
 
     await dp.bot.send_message(
-        chat_id=support_id,
+        chat_id=user_id,
         text=f'С Вами хочет связаться пользователь {call.from_user.full_name}',
         reply_markup=keyboard
     )
@@ -50,10 +42,12 @@ async def answer_support_call(call: CallbackQuery, state: FSMContext, callback_d
     if str(await user_state.get_state()) != 'wait_in_support':
         await call.message.edit_text('К сожалению пользователь отключился.')
 
+    state.chat = call.from_user.id
     await state.set_state('in_support')
     await user_state.set_state('in_support')
 
     await state.update_data(second_id=second_id)
+    await user_state.update_data(second_id=call.from_user.id)
 
     keyboard = cancel_support(second_id)
     keyboard_second_user = cancel_support(call.from_user.id)
